@@ -1,5 +1,7 @@
 package weibo.weibo.controller;
 
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import weibo.weibo.model.*;
 import weibo.weibo.service.*;
 import weibo.weibo.util.WeiboUtil;
@@ -20,7 +22,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@Controller
+@RestController
+@RequestMapping(value = "/", produces = "application/json;charset=UTF-8")
 public class NewsController {
     private static final Logger logger = LoggerFactory.getLogger(NewsController.class);
 
@@ -42,7 +45,7 @@ public class NewsController {
     @Autowired
     AliService aliService;
 
-    @RequestMapping(path = {"/news/{newsId}"}, method = {RequestMethod.GET})
+    @GetMapping("news/{newsId}")
     public String newsDetail(@PathVariable("newsId") int newsId, Model model) {
         News news = newsService.getNews(newsId);
         if (news != null) {
@@ -72,11 +75,16 @@ public class NewsController {
 
     //todo
     //put post 区别
-    @RequestMapping(path = {"/user/addNews/"},method = {RequestMethod.POST})
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", dataType = "String", name = "image", value = "图片", required = false),
+            @ApiImplicitParam(paramType = "query", dataType = "String", name = "title", value = "文本", required = false),
+            @ApiImplicitParam(paramType = "query", dataType = "String", name = "link", value = "链接", required = false),
+    })
+    @PostMapping("user/addNews")
     @ResponseBody
-    public String addNews(@RequestParam("image") String image,
-                          @RequestParam("title") String title,
-                          @RequestParam("link") String link) {
+    public String addNews(@RequestParam(value = "image",required = false) String image,
+                          @RequestParam(value = "title",required = false) String title,
+                          @RequestParam(value = "link",required = false) String link) {
         try{
             News news= new News();
             news.setImage(image);

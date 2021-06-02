@@ -1,5 +1,8 @@
 package weibo.weibo.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import weibo.weibo.controller.LoginController;
 import weibo.weibo.dao.LoginTicketDao;
 import weibo.weibo.dao.UserDao;
 import weibo.weibo.model.LoginTicket;
@@ -20,6 +23,8 @@ import java.util.UUID;
  */
 @Service
 public class UserService {
+
+    private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
     @Autowired
     private UserDao userDao;
@@ -55,7 +60,7 @@ public class UserService {
         user.setName(userName);
         user.setSalt(UUID.randomUUID().toString().substring(0, 5));
         user.setHeadUrl(String.format("http://images.tyella.com/head/%dt.png", 1));
-        user.setPassword(password + WeiboUtil.MD5(user.getSalt()));
+        user.setPassword(WeiboUtil.MD5(password + user.getSalt()));
         userDao.addUser(user);
 
         //传入ticket,也就是登陆成功
@@ -84,6 +89,7 @@ public class UserService {
         }
         //密码错误
         if (!user.getPassword().equals(WeiboUtil.MD5(password + user.getSalt()))) {
+            logger.error(WeiboUtil.MD5(password + user.getSalt()));
             map.put("msg", "密码错误!");
             return map;
         }

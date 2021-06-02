@@ -1,6 +1,8 @@
 package weibo.weibo.controller;
 
 
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +19,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
-@Controller
+@RestController
+@RequestMapping(value = "/", produces = "application/json;charset=UTF-8")
 public class LoginController {
     private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
@@ -27,9 +30,15 @@ public class LoginController {
     @Autowired
     private EventProducer eventProducer;
 
-    @RequestMapping(path = {"/reg"}, method = {RequestMethod.GET, RequestMethod.POST})
+
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", dataType = "String", name = "username", value = "用户名", required = true),
+            @ApiImplicitParam(paramType = "query", dataType = "String", name = "password", value = "密码", required = true),
+            @ApiImplicitParam(paramType = "query", dataType = "int", name = "remember", value = "记住密码", required = false),
+    })
     @ResponseBody
-    public String reg(Model model,
+    @PostMapping("reg")
+    public String reg(
                       @RequestParam("username") String userName,
                       @RequestParam("password") String password,
                       @RequestParam(value = "rember", defaultValue = "0") int rememberme,
@@ -53,12 +62,18 @@ public class LoginController {
         }
     }
 
-    @RequestMapping(path = {"/login/"}, method = {RequestMethod.GET, RequestMethod.POST})
+
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "query", dataType = "String", name = "username", value = "用户名", required = true),
+            @ApiImplicitParam(paramType = "query", dataType = "String", name = "password", value = "密码", required = true),
+            @ApiImplicitParam(paramType = "query", dataType = "int", name = "remember", value = "记住密码", required = false),
+    })
     @ResponseBody
-    public String login(Model model,
+    @GetMapping("login")
+    public String login(
                         @RequestParam("username") String userName,
                         @RequestParam("password") String password,
-                        @RequestParam(value = "rember", defaultValue = "0") int remember,
+                        @RequestParam(value = "remember", defaultValue = "0") int remember,
                         HttpServletResponse httpServletResponse) {
         try {
             Map<String, Object> map = userService.login(userName, password);
@@ -70,8 +85,7 @@ public class LoginController {
                 }
                 httpServletResponse.addCookie(cookie);
                 eventProducer.fireEvent(new EventModel(EventType.LOGIN)
-                        .setExts("username", userName)
-                        .setExts("email", "272711917@qq.com"));
+                        .setExts("username", userName));
                 return WeiboUtil.getJSONString(0, "登录成功");
             } else {
                 return WeiboUtil.getJSONString(1, "登录异常");

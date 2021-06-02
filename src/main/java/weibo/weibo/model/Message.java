@@ -15,7 +15,7 @@ public class Message {
 
     private String content;
 
-    private Date createDate;
+    private Date createTime;
 
     private int hasRead;
 
@@ -54,11 +54,11 @@ public class Message {
     }
 
     public Date getCreateDate() {
-        return createDate;
+        return createTime;
     }
 
     public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
+        this.createTime = createDate;
     }
 
     public int getHasRead() {
