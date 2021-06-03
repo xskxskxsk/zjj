@@ -89,7 +89,6 @@ public class UserService {
         }
         //密码错误
         if (!user.getPassword().equals(WeiboUtil.MD5(password + user.getSalt()))) {
-            logger.error(WeiboUtil.MD5(password + user.getSalt()));
             map.put("msg", "密码错误!");
             return map;
         }

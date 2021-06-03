@@ -1,10 +1,11 @@
 package weibo.weibo.async;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 //事件实体
-public class EventModel {
+public class EventModel implements Serializable {
     private EventType eventType;
     //触发者
     private int actorId;
@@ -26,6 +27,8 @@ public class EventModel {
         exts.put(key,value);
         return this;
     }
+
+    public Map getExts(){return  exts;}
 
     public String getExts(String key){
         return exts.get(key);

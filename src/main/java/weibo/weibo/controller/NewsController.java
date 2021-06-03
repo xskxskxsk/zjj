@@ -2,6 +2,9 @@ package weibo.weibo.controller;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
+import springfox.documentation.annotations.ApiIgnore;
+import weibo.weibo.annotation.Audit;
+import weibo.weibo.annotation.LoginUser;
 import weibo.weibo.model.*;
 import weibo.weibo.service.*;
 import weibo.weibo.util.WeiboUtil;
@@ -80,9 +83,11 @@ public class NewsController {
             @ApiImplicitParam(paramType = "query", dataType = "String", name = "title", value = "文本", required = false),
             @ApiImplicitParam(paramType = "query", dataType = "String", name = "link", value = "链接", required = false),
     })
+    @Audit
     @PostMapping("user/addNews")
     @ResponseBody
-    public String addNews(@RequestParam(value = "image",required = false) String image,
+    public String addNews(@LoginUser @ApiIgnore @RequestParam(required = false) int userId,
+                          @RequestParam(value = "image",required = false) String image,
                           @RequestParam(value = "title",required = false) String title,
                           @RequestParam(value = "link",required = false) String link) {
         try{
@@ -91,12 +96,13 @@ public class NewsController {
             news.setTitle(title);
             news.setLink(link);
             news.setCreatedTime(new Date());
-            if(userHolder.getUser()!=null){
-                news.setUserId(userHolder.getUser().getId());
-            }else{
-                //设置一个匿名用户
-                news.setUserId(3);
-            }
+//            if(userHolder.getUser()!=null){
+//                news.setUserId(userHolder.getUser().getId());
+//            }else{
+//                //设置一个匿名用户
+//                news.setUserId(3);
+//            }
+            news.setUserId(userId);
             newsService.addNews(news);
             return WeiboUtil.getJSONString(0);
         }catch (Exception e){
