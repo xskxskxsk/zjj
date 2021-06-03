@@ -1,12 +1,17 @@
 package weibo.weibo.service;
 
 
+import org.springframework.beans.factory.annotation.Value;
 import weibo.weibo.dao.NewsDao;
+import weibo.weibo.model.Image;
 import weibo.weibo.model.News;
+import weibo.weibo.util.ResponseCode;
+import weibo.weibo.util.ReturnObject;
 import weibo.weibo.util.WeiboUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import weibo.weibo.util.MD5;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +22,9 @@ import java.util.UUID;
 
 @Service
 public class NewsService {
+
+    @Value("${Weibo.img.path}")
+    private String imgPath;
 
     @Autowired
     private NewsDao newsDao;
@@ -76,5 +84,34 @@ public class NewsService {
             sb.append(fileUrl);
         }
         return sb.toString();
+    }
+
+    public ReturnObject<String> uploadFile(int userId, MultipartFile img){
+        String imgMD5 = MD5.getFileMd5(img);
+        System.out.println("MD5: " + imgMD5);
+
+        String fileName = savaImgToDisk(img);
+        if(fileName == null){
+            return new ReturnObject<>(ResponseCode.INTERNAL_SERVER_ERR);
+        }
+        System.out.println("FileName: " + fileName);
+        Image image = new Image(userId, imgMD5, fileName);
+        return new ReturnObject(newsDao.insertImage(image));
+    }
+
+    public String savaImgToDisk(MultipartFile img){
+        try {
+            String realPath = imgPath + "/" + UUID.randomUUID().toString().replace("-", "")+img.getOriginalFilename().substring(img.getOriginalFilename().lastIndexOf("."));
+            File dest = new File(realPath);
+            if (!dest.getParentFile().exists()) {
+                dest.getParentFile().mkdir();
+            }
+            img.transferTo(dest);
+            return dest.getName();
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 }

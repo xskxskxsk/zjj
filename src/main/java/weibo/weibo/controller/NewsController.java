@@ -1,12 +1,13 @@
 package weibo.weibo.controller;
 
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.*;
 import springfox.documentation.annotations.ApiIgnore;
 import weibo.weibo.annotation.Audit;
 import weibo.weibo.annotation.LoginUser;
 import weibo.weibo.model.*;
 import weibo.weibo.service.*;
+import weibo.weibo.util.ResponseUtil;
+import weibo.weibo.util.ReturnObject;
 import weibo.weibo.util.WeiboUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,7 +88,7 @@ public class NewsController {
     @Audit
     @PostMapping("user/addNews")
     @ResponseBody
-    public String addNews(@LoginUser @ApiIgnore @RequestParam(required = false) int userId,
+    public String addNews(@LoginUser @ApiIgnore @RequestParam(required = false) Long userId,
                           @RequestParam(value = "image",required = false) String image,
                           @RequestParam(value = "title",required = false) String title,
                           @RequestParam(value = "link",required = false) String link) {
@@ -103,9 +104,9 @@ public class NewsController {
 //                //设置一个匿名用户
 //                news.setUserId(3);
 //            }
-            news.setUserId(userId);
+            news.setUserId(userId.intValue());
             newsService.addNews(news);
-            return WeiboUtil.getJSONString(0);
+            return WeiboUtil.getJSONString(0,"发布成功");
         }catch (Exception e){
             logger.error("添加资讯失败"+e.getMessage());
             return WeiboUtil.getJSONString(1,"发布失败");
@@ -163,4 +164,25 @@ public class NewsController {
         }
     }
 
+
+    @ApiOperation(value = "上传图片", produces = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "token", required = true),
+            @ApiImplicitParam(paramType = "form", dataType = "__file", name = "img", value = "图片", required = true),
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+    })
+    @Audit
+    @PostMapping("image")
+    public Object uploadFile(@ApiIgnore @LoginUser Long userId,
+                             @RequestParam MultipartFile img){
+        System.out.println("UserId: " + userId + ", FileSize: " + img.getSize() + ", FileName: " + img.getOriginalFilename());
+        ReturnObject<String> returnObject = newsService.uploadFile(userId.intValue(), img);
+        if(returnObject.getData() == null){
+            return ResponseUtil.fail(returnObject.getCode(), returnObject.getErrmsg());
+        }else{
+            return ResponseUtil.ok(returnObject.getData());
+        }
+    }
 }

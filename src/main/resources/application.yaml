@@ -1,0 +1,34 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+server:
+  port: 8080
+  servlet:
+    threads:
+      max: 1000
+  tomcat:
+    threads:
+      max: 1000
+
+spring:
+  application:
+    name: weibo-service
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+  profiles:
+    active: dev
+
+
+Weibo:
+  img:
+    path: D:\Download
+
+#pagehelper分页插件配置
+pagehelper:
+  helper-dialect: mysql

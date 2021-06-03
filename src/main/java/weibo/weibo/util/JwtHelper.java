@@ -21,7 +21,7 @@ import java.util.*;
  */
 public class JwtHelper {
 
-    private Logger logger = LoggerFactory.getLogger(weibo.weibo.util.JwtHelper.class);
+    private Logger logger = LoggerFactory.getLogger(JwtHelper.class);
 
     // 秘钥
     static final String SECRET = "Role-Privilege-Token";
@@ -56,9 +56,10 @@ public class JwtHelper {
     /**
      * 创建用户Token
      * @param userId 用户id
+     * @param departId 部门id
      * @return token
      */
-    public String createToken(int userId,int expireTime) {
+    public String createToken(Long userId, Long departId, int expireTime) {
         logger.debug("createToken:");
         try {
             Algorithm algorithm = Algorithm.HMAC256(SECRET);
@@ -69,13 +70,14 @@ public class JwtHelper {
             map.put("typ", "JWT");
             String tokenId = Common.genSeqNum();
             StringBuilder message = new StringBuilder().append("createToken: ").append("userId = ")
-                    .append(userId).append(" tokenId:").append(tokenId);
+                    .append(userId).append(" departId=").append(departId).append(" tokenId:").append(tokenId);
             logger.debug(message.toString());
             String token = JWT.create()
                     // 设置头部信息 Header
                     .withHeader(map)
                     // 设置 载荷 Payload
                     .withClaim("userId", userId)
+                    .withClaim("departId", departId)
                     .withClaim("tokenId",tokenId)
                     .withIssuer(ISSUSER)
                     .withSubject(SUBJECT)

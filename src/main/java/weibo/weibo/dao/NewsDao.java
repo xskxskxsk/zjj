@@ -1,5 +1,6 @@
 package weibo.weibo.dao;
 
+import weibo.weibo.model.Image;
 import weibo.weibo.model.News;
 import org.apache.ibatis.annotations.*;
 
@@ -11,7 +12,9 @@ import java.util.List;
 @Mapper
 public interface NewsDao {
     String TABLE_NAME = "news";
+    String TABLE_NAME1 = "image";
     String INSERT_FIELDS = " title,link,image,create_time,user_id,comment_count,like_count";
+    String INSERT_FIELDS1 = " user_id,MD5,name";
     String SELECT_FIELDS = "id, " + INSERT_FIELDS;
 
     @Insert({"insert into ",TABLE_NAME,"(",INSERT_FIELDS,") " +
@@ -27,6 +30,11 @@ public interface NewsDao {
 
     @Update({"update ",TABLE_NAME,"set likeCount=#{likeCount} where id=#{id}"})
     int updateLikeCount(@Param("id") int id,@Param("likeCount") int likeCount);
+
+    @Insert({"insert into ",TABLE_NAME1,"(",INSERT_FIELDS1,") " +
+            "values(#{user_id},#{MD5},#{name})"})
+    @Options(useGeneratedKeys = true,keyProperty = "id")
+    String insertImage(Image image);
 
     //TODO
     //@Select({})

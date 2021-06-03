@@ -82,7 +82,7 @@ public class UserService {
 
         }
         JwtHelper jwtHelper = new JwtHelper();
-        String jwt = jwtHelper.createToken(user.getId(), 3600);
+        String jwt = jwtHelper.createToken((long)user.getId(), 0L,3600);
         logger.debug("login: Jwt = "+ jwt);
         return new ReturnObject<>(jwt);
     }

@@ -33,7 +33,7 @@ public class AuditAspect {
 
     //注入Service用于把日志保存数据库
 
-    private  static  final Logger logger = LoggerFactory.getLogger(weibo.weibo.annotation.AuditAspect. class);
+    private  static  final Logger logger = LoggerFactory.getLogger(AuditAspect. class);
 
     //Controller层切点
     @Pointcut("@annotation(weibo.weibo.annotation.Audit)")
@@ -59,6 +59,7 @@ public class AuditAspect {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
         String token = request.getHeader(JwtHelper.LOGIN_TOKEN_KEY);
+        logger.error(token);
         if (token == null){
 //            什么也不做
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -66,19 +67,55 @@ public class AuditAspect {
         }
 
         JwtHelper.UserAndDepart userAndDepart = new JwtHelper().verifyTokenAndGetClaims(token);
+        if(userAndDepart!=null){
+            logger.error("123"+userAndDepart.toString());
+        }
         Long userId = null;
         Long departId = null;
         if (null != userAndDepart){
             userId = userAndDepart.getUserId();
             departId = userAndDepart.getDepartId();
+            logger.error("userId="+userId+"departId="+departId);
+        }
+
+        logger.error(request.getPathInfo());
+        //检验/shop的api中传入token是否和departId一致
+        String pathInfo = userAndDepart == null ? null : request.getPathInfo();
+        logger.error("132"+userAndDepart);
+        if(null!=pathInfo)
+        {
+            logger.debug("getPathInfo = "+ pathInfo);
+            String paths[]=pathInfo.split("/");
+            for(int i=0;i<paths.length;i++){
+                //如果departId为0,可以操作所有的shop
+                if(departId==0){
+                    break;
+                }
+                if(paths[i].equals("shops")){
+                    if(i+1<paths.length){
+                        //找到路径上对应id 将其与string类型的departId比较
+                        String pathId=paths[i+1];
+                        logger.debug("did ="+pathId);
+                        if(!pathId.equals(departId.toString())){
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            return ResponseUtil.fail(ResponseCode.FIELD_NOT_VALID, "departId不匹配");
+                        }
+                        logger.debug("success match Id!");
+                    }
+                    break;
+                }
+            }
+        }
+        else{
+            logger.error("the api path is null");
         }
 
 
         logger.debug("around: userId ="+userId+" departId="+departId);
-        if (userId == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return ResponseUtil.fail(ResponseCode.AUTH_NEED_LOGIN);
-        }
+//        if (userId == null) {
+//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//            return ResponseUtil.fail(ResponseCode.AUTH_NEED_LOGIN);
+//        }
 
         Object[] args = joinPoint.getArgs();
         Annotation[][] annotations = method.getParameterAnnotations();
@@ -94,6 +131,10 @@ public class AuditAspect {
                 if (annotation.annotationType().equals(LoginUser.class)) {
                     //校验该参数，验证一次退出该注解
                     args[i] = userId;
+                }
+                if (annotation.annotationType().equals(Depart.class)) {
+                    //校验该参数，验证一次退出该注解
+                    args[i] = departId;
                 }
             }
         }
