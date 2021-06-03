@@ -79,6 +79,7 @@ public class NewsController {
     //todo
     //put post 区别
     @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header",dataType = "String",name = "authorization",value = "Token",required = true),
             @ApiImplicitParam(paramType = "query", dataType = "String", name = "image", value = "图片", required = false),
             @ApiImplicitParam(paramType = "query", dataType = "String", name = "title", value = "文本", required = false),
             @ApiImplicitParam(paramType = "query", dataType = "String", name = "link", value = "链接", required = false),
