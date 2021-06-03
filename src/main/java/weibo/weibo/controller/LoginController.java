@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,9 @@ import weibo.weibo.async.EventModel;
 import weibo.weibo.async.EventProducer;
 import weibo.weibo.async.EventType;
 import weibo.weibo.service.UserService;
+import weibo.weibo.util.Common;
+import weibo.weibo.util.ResponseUtil;
+import weibo.weibo.util.ReturnObject;
 import weibo.weibo.util.WeiboUtil;
 
 import javax.servlet.http.Cookie;
@@ -72,29 +76,22 @@ public class LoginController {
     })
     @ResponseBody
     @GetMapping("login")
-    public String login(
+    public Object login(
                         @RequestParam("username") String userName,
                         @RequestParam("password") String password,
-                        @RequestParam(value = "remember", defaultValue = "0") int remember,
                         HttpServletResponse httpServletResponse) {
-        try {
-            Map<String, Object> map = userService.login(userName, password);
-            if (map.containsKey("ticket")) {
-                Cookie cookie = new Cookie("ticket", map.get("ticket").toString());
-                cookie.setPath("/");
-                if (remember > 0) {
-                    cookie.setMaxAge(3600 * 24 * 5);
-                }
-                httpServletResponse.addCookie(cookie);
-                eventProducer.fireEvent(new EventModel(EventType.LOGIN)
-                        .setExts("username", userName));
-                return WeiboUtil.getJSONString(0, "登录成功");
-            } else {
-                return WeiboUtil.getJSONString(1, "登录异常");
-            }
-        } catch (Exception e) {
-            logger.error("登录异常" + e.getMessage());
-            return WeiboUtil.getJSONString(1, "登录异常");
+        logger.debug("login: userName = "+userName);
+
+
+        //String ip = IpUtil.getIpAddr(httpServletRequest);
+        ReturnObject<String> jwt = userService.login(userName, password);
+
+        if(jwt.getData() == null){
+            logger.debug("login fail："+jwt.getErrmsg());
+            return ResponseUtil.fail(jwt.getCode(), jwt.getErrmsg());
+        }else{
+            httpServletResponse.setStatus(HttpStatus.CREATED.value());
+            return ResponseUtil.ok(jwt.getData());
         }
     }
 

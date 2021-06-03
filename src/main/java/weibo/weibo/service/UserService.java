@@ -2,13 +2,13 @@ package weibo.weibo.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 import weibo.weibo.controller.LoginController;
 import weibo.weibo.dao.LoginTicketDao;
 import weibo.weibo.dao.UserDao;
 import weibo.weibo.model.LoginTicket;
 import weibo.weibo.model.User;
-import weibo.weibo.util.WeiboUtil;
-import weibo.weibo.util.IllegalStrFilterUtil;
+import weibo.weibo.util.*;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -68,41 +68,23 @@ public class UserService {
         map.put("ticket", ticket);
         return map;
     }
-
-    public Map<String, Object> login(String userName, String password) {
+    @Transactional
+    public ReturnObject<String> login(String userName, String password) {
         Map<String, Object> map = new HashMap<>();
-        //用户名为空
-        if (StringUtils.isBlank(userName)) {
-            map.put("msg", "用户名不能为空！");
-            return map;
-        }
-        //密码为空
-        if (StringUtils.isBlank(password)) {
-            map.put("msg", "密码不能为空!");
-            return map;
-        }
         User user = userDao.selectByName(userName);
         //用户名不存在
         if (user == null) {
-            map.put("msg", "用户名不存在!");
-            return map;
+            return new ReturnObject<>(ResponseCode.AUTH_ID_NOTEXIST);
         }
         //密码错误
         if (!user.getPassword().equals(WeiboUtil.MD5(password + user.getSalt()))) {
-            map.put("msg", "密码错误!");
-            return map;
-        }
+            return new ReturnObject<>(ResponseCode.AUTH_INVALID_ACCOUNT);
 
-        //防止sql注入攻击
-        if(!IllegalStrFilterUtil.sqlStrFilter(userName) || !IllegalStrFilterUtil.sqlStrFilter(password)){
-            map.put("msg","不安全的输入，请重新输入");
-            return map;
         }
-
-        //传入ticket,也就是登陆成功
-        String ticket = addLoginTicket(user.getId());
-        map.put("ticket", ticket);
-        return map;
+        JwtHelper jwtHelper = new JwtHelper();
+        String jwt = jwtHelper.createToken(user.getId(), 3600);
+        logger.debug("login: Jwt = "+ jwt);
+        return new ReturnObject<>(jwt);
     }
 
     public String addLoginTicket(int userId) {
