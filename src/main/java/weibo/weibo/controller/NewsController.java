@@ -5,15 +5,15 @@ import springfox.documentation.annotations.ApiIgnore;
 import weibo.weibo.annotation.Audit;
 import weibo.weibo.annotation.LoginUser;
 import weibo.weibo.model.*;
+import weibo.weibo.model.RetObject.NewsRet;
 import weibo.weibo.service.*;
+import weibo.weibo.util.Common;
 import weibo.weibo.util.ResponseUtil;
 import weibo.weibo.util.ReturnObject;
 import weibo.weibo.util.WeiboUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,32 +49,41 @@ public class NewsController {
     @Autowired
     AliService aliService;
 
+
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header",dataType = "String",name = "authorization",value = "Token",required = true),
+            @ApiImplicitParam(paramType = "path",dataType = "int",name = "newsId",value = "资讯id",required = true)
+    })
+    @Audit
+    @ResponseBody
     @GetMapping("news/{newsId}")
-    public String newsDetail(@PathVariable("newsId") int newsId, Model model) {
+    public Object newsDetail(@PathVariable("newsId") int newsId,@LoginUser @ApiIgnore @RequestParam(required = false) Long userId) {
         News news = newsService.getNews(newsId);
+        int likeCount=0;
+        List<ViewObject> commentVOs = new ArrayList<>();
         if (news != null) {
-            int localUserId = userHolder.getUser() != null ? userHolder.getUser().getId() : 0;
-            if (localUserId != 0) {
+//            int localUserId = userHolder.getUser() != null ? userHolder.getUser().getId() : 0;
+//            if (localUserId != 0) {
                 //用户已登陆
-                model.addAttribute("like", likeService.getLikeStatus(localUserId, news.getId(), EntityType.ENTITY_NEWS));
-            } else {
-                //用户未登陆
-                model.addAttribute("like", 0);
-            }
+                likeCount=likeService.getLikeStatus(userId.intValue(), news.getId(), EntityType.ENTITY_NEWS);
+//            } else {
+//                //用户未登陆
+//                model.addAttribute("like", 0);
+//            }
             //评论
             List<Comment> comments = commentService.getCommentByEntity(news.getId(), EntityType.ENTITY_NEWS);
-            List<ViewObject> commentVOs = new ArrayList<>();
+
             for (Comment comment : comments) {
                 ViewObject vo = new ViewObject();
                 vo.set("comment", comment);
                 vo.set("user", userService.getUser(comment.getUserId()));
                 commentVOs.add(vo);
             }
-            model.addAttribute("comments", commentVOs);
         }
-        model.addAttribute("news", news);
-        model.addAttribute("owner", userService.getUser(news.getUserId()));
-        return "detail";
+        User user=userService.getUser(news.getUserId());
+        NewsRet newsRet=new NewsRet(likeCount,commentVOs,news,user);
+        ReturnObject returnObject=new ReturnObject(newsRet);
+        return Common.getRetObject(returnObject);
     }
 
     //todo
