@@ -22,9 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping(value = "/", produces = "application/json;charset=UTF-8")
@@ -51,6 +49,39 @@ public class NewsController {
 
 
     @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header",dataType = "String",name = "authorization",value = "Token",required = true)
+    })
+    @Audit
+    @ResponseBody
+    @GetMapping("news")
+    public Object newsAll(@LoginUser @ApiIgnore @RequestParam(required = false) Long userId) {
+        List<News> newsList = newsService.getAllNews();
+        List<NewsRet> newsRetList=new ArrayList<>();
+        if (newsList != null) {
+            for(News news:newsList) {
+                int likeCount = likeService.getLikeStatus(userId.intValue(), news.getId(), EntityType.ENTITY_NEWS);
+
+                List<ViewObject> commentVOs = new ArrayList<>();
+                List<Comment> comments = commentService.getCommentByEntity(news.getId(), EntityType.ENTITY_NEWS);
+
+                for (Comment comment : comments) {
+                    ViewObject vo = new ViewObject();
+                    vo.set("comment", comment);
+                    vo.set("user", userService.getUser(comment.getUserId()));
+                    commentVOs.add(vo);
+                }
+
+                User user=userService.getUser(news.getUserId());
+                NewsRet newsRet=new NewsRet(likeCount,commentVOs,news,user);
+                newsRetList.add(newsRet);
+            }
+        }
+
+        ReturnObject returnObject=new ReturnObject(newsRetList);
+        return Common.getListRetObject(returnObject);
+    }
+
+    @ApiImplicitParams({
             @ApiImplicitParam(paramType = "header",dataType = "String",name = "authorization",value = "Token",required = true),
             @ApiImplicitParam(paramType = "path",dataType = "int",name = "newsId",value = "资讯id",required = true)
     })
@@ -64,8 +95,8 @@ public class NewsController {
         if (news != null) {
 //            int localUserId = userHolder.getUser() != null ? userHolder.getUser().getId() : 0;
 //            if (localUserId != 0) {
-                //用户已登陆
-                likeCount=likeService.getLikeStatus(userId.intValue(), news.getId(), EntityType.ENTITY_NEWS);
+            //用户已登陆
+            likeCount=likeService.getLikeStatus(userId.intValue(), news.getId(), EntityType.ENTITY_NEWS);
 //            } else {
 //                //用户未登陆
 //                model.addAttribute("like", 0);
@@ -85,6 +116,7 @@ public class NewsController {
         ReturnObject returnObject=new ReturnObject(newsRet);
         return Common.getRetObject(returnObject);
     }
+
 
     //todo
     //put post 区别

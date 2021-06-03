@@ -38,6 +38,10 @@ public class NewsService {
         return newsDao.selectById(newsId);
     }
 
+    public List<News> getAllNews() {
+        return newsDao.selectNews();
+    }
+
     public List<News> getLastedNews(int id, int offset, int limit) {
         return newsDao.selectByUserIdAndOffset(id, offset, limit);
     }

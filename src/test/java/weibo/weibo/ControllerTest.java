@@ -143,4 +143,29 @@ public class ControllerTest {
         }
     }
 
+
+    @Test
+    public void getAllNewsTest()throws Exception{
+        String token = creatTestToken(60L, 0L, 100);
+
+        String expectedResponse="";
+        String responseString=null;
+
+        try{
+            responseString=this.mvc.perform(get("/news").header("authorization",token))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType("application/json;charset=UTF-8"))
+                    .andReturn().getResponse().getContentAsString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        expectedResponse = "{\"errno\":0,\"data\":[{\"id\":44,\"image\":\"123.jpg\",\"title\":\"1\",\"likeCount\":0,\"commentList\":[],\"user\":{\"id\":60,\"name\":\"xliiin\",\"headUrl\":\"http://images.tyella.com/head/1t.png\"}}],\"errmsg\":\"成功\"}";
+        try{
+            JSONAssert.assertEquals(expectedResponse,responseString,false);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
