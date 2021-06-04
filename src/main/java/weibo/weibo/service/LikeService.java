@@ -16,9 +16,9 @@ public class LikeService {
         String likeKey = RedisKeyUtil.getLikeKey(entityId, entityType);
         jedisUtil.sadd(likeKey, String.valueOf(userId));
         //从不喜欢集合里删除
-        String disLikeKey = RedisKeyUtil.getDislikeKey(entityId, entityType);
-        jedisUtil.srem(disLikeKey, String.valueOf(userId));
-        return jedisUtil.scard(likeKey);
+//        String disLikeKey = RedisKeyUtil.getDislikeKey(entityId, entityType);
+//        jedisUtil.srem(disLikeKey, String.valueOf(userId));
+         return jedisUtil.scard(likeKey);
     }
 
     public long disLike(int userId, int entityId, int entityType) {
