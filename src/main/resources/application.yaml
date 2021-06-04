@@ -32,3 +32,8 @@ Weibo:
 #pagehelper分页插件配置
 pagehelper:
   helper-dialect: mysql
+
+mq:
+  nameserver:
+    addr: localhost:9876
+  topicname: like
