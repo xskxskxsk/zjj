@@ -4,6 +4,7 @@ import weibo.weibo.model.Comment;
 import weibo.weibo.model.User;
 
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class CommentRet{
@@ -14,7 +15,7 @@ public class CommentRet{
 
     private int entityId;
 
-    private Date createTime;
+    private String createTime;
 
     private int status;
 
@@ -26,7 +27,8 @@ public class CommentRet{
         this.commentId=comment.getId();
         this.content=comment.getContent();
         this.entityId=comment.getEntityId();
-        this.createTime=comment.getCreateTime();
+        SimpleDateFormat sdf =new SimpleDateFormat("yyyy-MM-dd HH:mm:ss" );
+        this.createTime=sdf.format(comment.getCreateTime());
         this.status=comment.getStatus();
         this.userName=user.getName();
         this.urlHead=user.getHeadUrl();
@@ -44,9 +46,9 @@ public class CommentRet{
 
     public void setEntityId(int entityId){this.entityId=entityId;}
 
-    public Date getCreateTime(){return createTime;}
+    public String getCreateTime(){return createTime;}
 
-    public void setCreateTime(Date createTime){this.createTime=createTime;}
+    public void setCreateTime(String createTime){this.createTime=createTime;}
 
     public int getStatus(){return status;}
 

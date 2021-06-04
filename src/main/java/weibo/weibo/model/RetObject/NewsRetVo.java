@@ -20,7 +20,7 @@ public class NewsRetVo {
 
     private User user;
 
-    private Date createTime;
+    private String createTime;
 
     public int getId(){return id;}
 
@@ -50,7 +50,7 @@ public class NewsRetVo {
 
     public void setCommentCount(int commentCount){this.commentCount=commentCount;}
 
-    public Date getCreateTime(){return createTime;}
+    public String getCreateTime(){return createTime;}
 
-    public void setCreateTime(Date createTime){this.createTime=createTime;}
+    public void setCreateTime(String createTime){this.createTime=createTime;}
 }
