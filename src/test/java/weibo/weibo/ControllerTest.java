@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = WeiboApplication.class)   //标识本类是一个SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-@Rollback(false)
+//@Rollback(false)
 public class ControllerTest {
     @Autowired
     LoginController loginController;
@@ -159,7 +159,7 @@ public class ControllerTest {
             e.printStackTrace();
         }
 
-        expectedResponse = "{\"errno\":0,\"data\":{\"id\":44,\"image\":\"123.jpg\",\"title\":\"1\",\"likeCount\":0,\"commentCount\":1,\"commentList\":[{\"commentId\":1,\"content\":\"你好\",\"entityId\":44,\"status\":0,\"userName\":\"ssm\",\"urlHead\":\"http://images.tyella.com/head/1t.png\"}],\"user\":{\"id\":60,\"name\":\"xliiin\",\"headUrl\":\"http://images.tyella.com/head/1t.png\"}},\"errmsg\":\"成功\"}";
+        expectedResponse = "{\"errno\":0,\"data\":{\"id\":44,\"image\":\"123.jpg\",\"title\":\"1\",\"likeCount\":1,\"commentCount\":1,\"commentList\":[{\"commentId\":1,\"content\":\"你好\",\"entityId\":44,\"status\":0,\"userName\":\"ssm\",\"urlHead\":\"http://images.tyella.com/head/1t.png\"}],\"user\":{\"id\":60,\"name\":\"xliiin\",\"headUrl\":\"http://images.tyella.com/head/1t.png\"}},\"errmsg\":\"成功\"}";
         try{
             JSONAssert.assertEquals(expectedResponse,responseString,false);
         } catch (JSONException e) {
@@ -184,7 +184,7 @@ public class ControllerTest {
             e.printStackTrace();
         }
 
-        expectedResponse = "{\"errno\":0,\"data\":[{\"id\":44,\"image\":\"123.jpg\",\"title\":\"1\",\"likeCount\":0,\"commentCount\":1,\"user\":{\"id\":60,\"name\":\"xliiin\",\"headUrl\":\"http://images.tyella.com/head/1t.png\"}}],\"errmsg\":\"成功\"}";
+        expectedResponse = "{\"errno\":0,\"data\":[{\"id\":44,\"image\":\"123.jpg\",\"title\":\"1\",\"likeCount\":1,\"commentCount\":1,\"user\":{\"id\":60,\"name\":\"xliiin\",\"headUrl\":\"http://images.tyella.com/head/1t.png\"}}],\"errmsg\":\"成功\"}";
         try{
             JSONAssert.assertEquals(expectedResponse,responseString,false);
         } catch (JSONException e) {
@@ -304,9 +304,9 @@ public class ControllerTest {
         String responseString = null;
 
         try {
-            responseString = this.mvc.perform(post("/like/44").header("authorization",token))
+            responseString = this.mvc.perform(post("/like?newsId=44").header("authorization",token))
                     .andExpect(status().isOk())
-                    .andExpect(content().contentType("application/json;charset=UTF-8"))
+                    .andExpect(content().contentType("text/plain;charset=UTF-8"))
                     .andReturn().getResponse().getContentAsString();
         } catch (Exception e) {
             e.printStackTrace();

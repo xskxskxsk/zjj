@@ -1,9 +1,12 @@
 package weibo.weibo.service;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import weibo.weibo.controller.NewsController;
 import weibo.weibo.dao.NewsDao;
 import weibo.weibo.util.JedisUtil;
 import weibo.weibo.util.RedisKeyUtil;
@@ -22,6 +25,11 @@ public class LikeService {
 
     @Autowired
     private NewsDao newsDao;
+
+
+    private static final Logger logger = LoggerFactory.getLogger(LikeService.class);
+
+
     public void transLikedCountFromRedis(){
         //HashMap map=jedisUtil.getAll;
         Set<String> keys=redisTemplate.keys("*");
@@ -56,18 +64,14 @@ public class LikeService {
 //    }
 
     /**
-     * 1:喜欢 -1：不喜欢 0：未知
+     *
      * @param userId
      * @param entityId
      * @param entityType
      * @return
      */
     public int getLikeStatus(int userId, int entityId, int entityType) {
-        String likeKey = RedisKeyUtil.getLikeKey(entityId);
-        if (jedisUtil.sismember(likeKey, String.valueOf(userId))) {
-            return 1;
-        }
-        String disLikeKey = RedisKeyUtil.getDislikeKey(entityId, entityType);
-        return jedisUtil.sismember(disLikeKey, String.valueOf(userId)) ? -1 : 0;
+        int count= (int) jedisUtil.scard(" LIKE :"+entityId);
+        return count;
     }
 }
