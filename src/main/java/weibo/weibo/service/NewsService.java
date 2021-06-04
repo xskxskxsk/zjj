@@ -42,6 +42,10 @@ public class NewsService {
         return newsDao.selectNews();
     }
 
+    public List<News> getMyNews(int userId) {
+        return newsDao.selectMyNews(userId);
+    }
+
     public List<News> getLastedNews(int id, int offset, int limit) {
         return newsDao.selectByUserIdAndOffset(id, offset, limit);
     }
@@ -100,7 +104,7 @@ public class NewsService {
         }
         System.out.println("FileName: " + fileName);
         Image image = new Image(userId, imgMD5, fileName);
-        return new ReturnObject(newsDao.insertImage(image));
+        return new ReturnObject(image.getName());
     }
 
     public String savaImgToDisk(MultipartFile img){

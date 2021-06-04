@@ -80,6 +80,38 @@ public class NewsController {
         return Common.getListRetObject(returnObject);
     }
 
+
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header",dataType = "String",name = "authorization",value = "Token",required = true)
+    })
+    @Audit
+    @ResponseBody
+    @GetMapping("user/news")
+    public Object myNews(@LoginUser @ApiIgnore @RequestParam(required = false) Long userId) {
+        List<News> newsList = newsService.getMyNews(userId.intValue());
+        List<NewsRet> newsRetList=new ArrayList<>();
+        if (newsList != null) {
+            for(News news:newsList) {
+                int likeCount = likeService.getLikeStatus(userId.intValue(), news.getId(), EntityType.ENTITY_NEWS);
+
+                List<CommentRet> commentVOs = new ArrayList<>();
+                List<Comment> comments = commentService.getCommentByEntity(news.getId(), EntityType.ENTITY_COMMENT);
+
+                for (Comment comment : comments) {
+                    CommentRet vo = new CommentRet(comment,userService.getUser(comment.getUserId()));
+                    commentVOs.add(vo);
+                }
+
+                User user=userService.getUser(news.getUserId());
+                NewsRet newsRet=new NewsRet(likeCount,commentVOs,news,user,comments.size());
+                newsRetList.add(newsRet);
+            }
+        }
+
+        ReturnObject returnObject=new ReturnObject(newsRetList);
+        return Common.getListRetObject(returnObject);
+    }
+
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "header",dataType = "String",name = "authorization",value = "Token",required = true),
             @ApiImplicitParam(paramType = "path",dataType = "int",name = "newsId",value = "资讯id",required = true)
