@@ -21,7 +21,7 @@ import weibo.weibo.util.WeiboUtil;
 
 import javax.servlet.http.HttpServletRequest;
 
-@Controller
+@RestController
 public class LikeController {
 
     @Autowired
@@ -40,14 +40,14 @@ public class LikeController {
     @ApiOperation(value = "点赞", produces = "application/json")
     @ApiImplicitParams({
             @ApiImplicitParam(name="authorization", value="Token", required = true, dataType="String", paramType="header"),
-            @ApiImplicitParam(name="newsId", required = true, dataType="Integer", paramType="path")
+            @ApiImplicitParam(name="newsId", required = true, dataType="Integer")
     })
     @Audit
-    @PostMapping("/like/{newsId}")
-    public String like(@LoginUser @ApiIgnore @RequestParam(required = false) Long userId,@PathVariable("newsId") int newsId) {
+    @PostMapping("/like")
+    public String like(@LoginUser @ApiIgnore @RequestParam(required = false) Long userId,@RequestParam(required =false ) int newsId) {
         long likeCount = likeService.like(Math.toIntExact(userId), newsId, EntityType.ENTITY_NEWS);
         //newsService.updateLikeCount(newsId, (int) likeCount);//需要异步写回
-        boolean mqResult = mqProducer.asyncLike(newsId, (int) likeCount);
+        //boolean mqResult = mqProducer.asyncLike(newsId, (int) likeCount);
         News news = newsService.getNews(newsId);
         eventProducer.fireEvent(new EventModel(EventType.LIKE)
                 .setActorId(Math.toIntExact(userId))
@@ -56,12 +56,12 @@ public class LikeController {
         return WeiboUtil.getJSONString(0, String.valueOf(likeCount));
     }
 
-    @RequestMapping(path = {"/dislike"}, method = {RequestMethod.GET, RequestMethod.POST})
-    @ResponseBody
-    public String disLike(int newId) {
-        long likeCount = likeService.disLike(userHolder.getUser().getId(), newId, EntityType.ENTITY_NEWS);
-        newsService.updateLikeCount(newId, (int) likeCount);
-        return WeiboUtil.getJSONString(0, String.valueOf(likeCount));
-    }
+//    @RequestMapping(path = {"/dislike"}, method = {RequestMethod.GET, RequestMethod.POST})
+//    @ResponseBody
+//    public String disLike(int newId) {
+//       // long likeCount = likeService.disLike(userHolder.getUser().getId(), newId, EntityType.ENTITY_NEWS);
+//        newsService.updateLikeCount(newId, (int) likeCount);
+//        return WeiboUtil.getJSONString(0, String.valueOf(likeCount));
+//    }
 
 }
