@@ -21,18 +21,18 @@ public interface MessageDao {
     int addMessage(Message message);
 
     //TODO
-    @Select({"select ", INSERT_FIELDS, " ,count(id) as id from " +
+    @Select({"select ", SELECT_FIELDS, " from " +
             "( select * from ", TABLE_NAME, " where from_id=#{userId} or to_id=#{userId} order by id desc) tt " +
             "group by conversation_id order by id desc limit #{offset},#{limit}"})
-    List<Message> getConversationList(int user_id, int offset, int limit);
+    List<Message> getConversationList(int userId, int offset, int limit);
 
-    @Select({"select count(id) from ", TABLE_NAME, "where has_read=0 and to_id=#{userId} and conversation_id=#{conversationId}"})
+    @Select({"select count(id) from ", TABLE_NAME, "where to_id=#{userId} and conversation_id=#{conversationId}"})
     int getConversationUnReadCount(@Param("userId") int userId, @Param("conversationId") String conversationId);
 
-    @Select({"select count(id) from ", TABLE_NAME, "where has_read=0 and to_id=#{user_id}"})
+    @Select({"select count(id) from ", TABLE_NAME, "where to_id=#{userId} and conversation_id=#{conversationId}"})
     int getConversationTotalCount(@Param("userId") int userId, @Param("conversationId") String conversationId);
 
     @Select({"select ", SELECT_FIELDS, " from ", TABLE_NAME,
-            "where conversation_id=#{conversation} order by id desc limit #{offset},#{limit}"})
+            "where conversation_id=#{conversationId} order by id desc limit #{offset},#{limit}"})
     List<Message> getConversationDetail(@Param("conversationId") String conversationId, @Param("offset") int offset, @Param("limit") int limit);
 }

@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = WeiboApplication.class)   //标识本类是一个SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-//@Rollback(false)
+@Rollback(false)
 public class ControllerTest {
     @Autowired
     LoginController loginController;
@@ -286,7 +286,7 @@ public class ControllerTest {
             e.printStackTrace();
         }
 
-        expectedResponse = "{\"errno\":0,\"data\":[{\"message\":{\"id\":4,\"content\":\"你好\",\"conversationId\":\"xliiin_ssm\"},\"fromHeadUrl\":\"http://images.tyella.com/head/1t.png\",\"fromUserName\":\"xliiin\",\"toHeadUrl\":\"http://images.tyella.com/head/1t.png\",\"toUserName\":\"ssm\"}],\"errmsg\":\"成功\"}";
+        expectedResponse = "{\"errno\":0,\"data\":[{\"message\":{\"id\":4,\"content\":\"你好\",\"conversationId\":\"xliiin_ssm\"},\"toHeadUrl\":\"http://images.tyella.com/head/1t.png\",\"toUserName\":\"ssm\",\"totalCount\":3},{\"message\":{\"id\":10,\"content\":\"你好\",\"conversationId\":\"xliiin_zzx\"},\"toHeadUrl\":\"http://images.tyella.com/head/1t.png\",\"toUserName\":\"zzx\",\"totalCount\":1}],\"errmsg\":\"成功\"}";
 
         try {
             JSONAssert.assertEquals(expectedResponse, responseString, false);
@@ -295,5 +295,30 @@ public class ControllerTest {
         }
     }
 
+
+    @Test
+    public void addLikeTest()throws Exception {
+        String token = creatTestToken(60L, 0L, 100);
+
+        String expectedResponse = "";
+        String responseString = null;
+
+        try {
+            responseString = this.mvc.perform(post("/like/44").header("authorization",token))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType("application/json;charset=UTF-8"))
+                    .andReturn().getResponse().getContentAsString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        expectedResponse = "{\"code\":0,\"msg\":\"1\"}";
+
+        try {
+            JSONAssert.assertEquals(expectedResponse, responseString, false);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

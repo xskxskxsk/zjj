@@ -1,7 +1,6 @@
 package weibo.weibo.async;
 
 import com.alibaba.fastjson.JSON;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.rocketmq.client.exception.MQBrokerException;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
