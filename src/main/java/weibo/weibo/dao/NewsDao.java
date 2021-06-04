@@ -31,7 +31,7 @@ public interface NewsDao {
     @Update({"update ",TABLE_NAME,"set commentCount=#{commentCount} where id=#{id}"})
     int updateCommentCount(@Param("id") int id, @Param("commentCount") int commentCount);
 
-    @Update({"update ",TABLE_NAME,"set likeCount=#{likeCount} where id=#{id}"})
+    @Update({"update ",TABLE_NAME,"set like_count=#{likeCount} where id=#{id}"})
     int updateLikeCount(@Param("id") int id,@Param("likeCount") int likeCount);
 
     @Insert({"insert into ",TABLE_NAME1,"(",INSERT_FIELDS1,") " +

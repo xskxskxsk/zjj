@@ -7,7 +7,8 @@ public class RedisKeyUtil {
     private static String RK_EVENT=" EVENT ";
 
     public static String getLikeKey(int entityId,int entityType){
-        return RK_LIKE+SPLIT+String.valueOf(entityId)+SPLIT+String.valueOf(entityType);
+        //return RK_LIKE+SPLIT+String.valueOf(entityId)+SPLIT+String.valueOf(entityType);
+        return RK_LIKE+SPLIT+String.valueOf(entityId);
     }
 
     public static String getDislikeKey(int entityId,int entityType){
