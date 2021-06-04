@@ -1,8 +1,8 @@
 package weibo.weibo.model.RetObject;
 
 import weibo.weibo.model.User;
-import weibo.weibo.model.ViewObject;
 
+import java.util.Date;
 import java.util.List;
 
 public class NewsRetVo {
@@ -14,9 +14,13 @@ public class NewsRetVo {
 
     private int likeCount;
 
-    private List<ViewObject> commentList;
+    private int commentCount;
+
+    private List<CommentRet> commentList;
 
     private User user;
+
+    private Date createTime;
 
     public int getId(){return id;}
 
@@ -30,9 +34,9 @@ public class NewsRetVo {
 
     public void setTitle(String title){this.title=title;}
 
-    public List<ViewObject> getCommentList(){return commentList;}
+    public List<CommentRet> getCommentList(){return commentList;}
 
-    public void setCommentList(List<ViewObject> commentList){this.commentList=commentList;}
+    public void setCommentList(List<CommentRet> commentList){this.commentList=commentList;}
 
     public User getUser(){return user;}
 
@@ -41,4 +45,12 @@ public class NewsRetVo {
     public int getLikeCount(){return likeCount;}
 
     public void setLikeCount(int likeCount){this.likeCount=likeCount;}
+
+    public int getCommentCount(){return commentCount;}
+
+    public void setCommentCount(int commentCount){this.commentCount=commentCount;}
+
+    public Date getCreateTime(){return createTime;}
+
+    public void setCreateTime(Date createTime){this.createTime=createTime;}
 }

@@ -43,7 +43,31 @@ public class ControllerTest {
 
     @Test
     public void registerTest()throws Exception{
-//        String token = creatTestToken(60L, 0L, 100);
+
+        String expectedResponse="";
+        String responseString=null;
+
+        try{
+            responseString=this.mvc.perform(post("/reg?username=zzx&password=123456"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType("application/json;charset=UTF-8"))
+                    .andReturn().getResponse().getContentAsString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        expectedResponse = "{\"code\":0,\"msg\":\"注册成功\"}";
+
+        try{
+            JSONAssert.assertEquals(expectedResponse,responseString,false);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Test
+    public void loginTest()throws Exception{
 
         String expectedResponse="";
         String responseString=null;
@@ -135,7 +159,7 @@ public class ControllerTest {
             e.printStackTrace();
         }
 
-        expectedResponse = "{\"errno\":0,\"data\":{\"id\":44,\"image\":\"123.jpg\",\"title\":\"1\",\"likeCount\":0,\"commentList\":[],\"user\":{\"id\":60,\"name\":\"xliiin\",\"headUrl\":\"http://images.tyella.com/head/1t.png\"}},\"errmsg\":\"成功\"}";
+        expectedResponse = "{\"errno\":0,\"data\":{\"id\":44,\"image\":\"123.jpg\",\"title\":\"1\",\"likeCount\":0,\"commentCount\":1,\"commentList\":[{\"commentId\":1,\"content\":\"你好\",\"entityId\":44,\"status\":0,\"userName\":\"ssm\",\"urlHead\":\"http://images.tyella.com/head/1t.png\"}],\"user\":{\"id\":60,\"name\":\"xliiin\",\"headUrl\":\"http://images.tyella.com/head/1t.png\"}},\"errmsg\":\"成功\"}";
         try{
             JSONAssert.assertEquals(expectedResponse,responseString,false);
         } catch (JSONException e) {
@@ -160,12 +184,116 @@ public class ControllerTest {
             e.printStackTrace();
         }
 
-        expectedResponse = "{\"errno\":0,\"data\":[{\"id\":44,\"image\":\"123.jpg\",\"title\":\"1\",\"likeCount\":0,\"commentList\":[],\"user\":{\"id\":60,\"name\":\"xliiin\",\"headUrl\":\"http://images.tyella.com/head/1t.png\"}}],\"errmsg\":\"成功\"}";
+        expectedResponse = "{\"errno\":0,\"data\":[{\"id\":44,\"image\":\"123.jpg\",\"title\":\"1\",\"likeCount\":0,\"commentCount\":1,\"user\":{\"id\":60,\"name\":\"xliiin\",\"headUrl\":\"http://images.tyella.com/head/1t.png\"}}],\"errmsg\":\"成功\"}";
         try{
             JSONAssert.assertEquals(expectedResponse,responseString,false);
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
+
+    @Test
+    public void addMessageTest()throws Exception {
+        String token = creatTestToken(60L, 0L, 100);
+
+        String expectedResponse = "";
+        String responseString = null;
+
+        try {
+            responseString = this.mvc.perform(post("/msg/addMessage/62?content=你好").header("authorization",token))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType("text/plain;charset=UTF-8"))
+                    .andReturn().getResponse().getContentAsString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        expectedResponse = "{\"code\":0,\"msg\":\"发送成功\"}";
+
+        try {
+            JSONAssert.assertEquals(expectedResponse, responseString, false);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+    @Test
+    public void addCommentTest()throws Exception {
+        String token = creatTestToken(61L, 0L, 100);
+
+        String expectedResponse = "";
+        String responseString = null;
+
+        try {
+            responseString = this.mvc.perform(post("/user/addComment/44?content=你好").header("authorization",token))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType("application/json;charset=UTF-8"))
+                    .andReturn().getResponse().getContentAsString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        expectedResponse = "{\"code\":0,\"msg\":\"发布评论成功\"}";
+
+        try {
+            JSONAssert.assertEquals(expectedResponse, responseString, false);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    @Test
+    public void getMessageTest()throws Exception {
+        String token = creatTestToken(60L, 0L, 100);
+
+        String expectedResponse = "";
+        String responseString = null;
+
+        try {
+            responseString = this.mvc.perform(get("/msg/xliiin_ssm").header("authorization",token))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType("application/json;charset=UTF-8"))
+                    .andReturn().getResponse().getContentAsString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        expectedResponse = "{\"errno\":0,\"data\":[{\"message\":{\"id\":4,\"content\":\"你好\",\"conversationId\":\"xliiin_ssm\"},\"fromHeadUrl\":\"http://images.tyella.com/head/1t.png\",\"fromUserName\":\"xliiin\",\"toHeadUrl\":\"http://images.tyella.com/head/1t.png\",\"toUserName\":\"ssm\"}],\"errmsg\":\"成功\"}";
+
+        try {
+            JSONAssert.assertEquals(expectedResponse, responseString, false);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void getMessageListTest()throws Exception {
+        String token = creatTestToken(60L, 0L, 100);
+
+        String expectedResponse = "";
+        String responseString = null;
+
+        try {
+            responseString = this.mvc.perform(get("/msg/list").header("authorization",token))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType("application/json;charset=UTF-8"))
+                    .andReturn().getResponse().getContentAsString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        expectedResponse = "{\"errno\":0,\"data\":[{\"message\":{\"id\":4,\"content\":\"你好\",\"conversationId\":\"xliiin_ssm\"},\"fromHeadUrl\":\"http://images.tyella.com/head/1t.png\",\"fromUserName\":\"xliiin\",\"toHeadUrl\":\"http://images.tyella.com/head/1t.png\",\"toUserName\":\"ssm\"}],\"errmsg\":\"成功\"}";
+
+        try {
+            JSONAssert.assertEquals(expectedResponse, responseString, false);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 }

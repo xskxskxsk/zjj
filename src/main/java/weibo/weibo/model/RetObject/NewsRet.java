@@ -2,9 +2,9 @@ package weibo.weibo.model.RetObject;
 
 import weibo.weibo.model.News;
 import weibo.weibo.model.User;
-import weibo.weibo.model.ViewObject;
 import weibo.weibo.model.VoObject;
 
+import java.util.Date;
 import java.util.List;
 
 public class NewsRet implements VoObject {
@@ -16,17 +16,23 @@ public class NewsRet implements VoObject {
 
     private int likeCount;
 
-    private List<ViewObject> commentList;
+    private int CommentCount;
+
+    private List<CommentRet> commentList;
 
     private User user;
 
-    public NewsRet(int likeCount, List<ViewObject> commentList, News news, User user){
+    private Date createTime;
+
+    public NewsRet(int likeCount, List<CommentRet> commentList, News news, User user,int commentCount){
         this.id=news.getId();
         this.likeCount=likeCount;
         this.commentList=commentList;
         this.image=news.getImage();
         this.title=news.getTitle();
         this.user=user;
+        this.createTime=news.getCreatedTime();
+        this.CommentCount=commentCount;
     }
 
     @Override
@@ -38,6 +44,8 @@ public class NewsRet implements VoObject {
         newsRetVo.setTitle(title);
         newsRetVo.setCommentList(commentList);
         newsRetVo.setUser(user);
+        newsRetVo.setCommentCount(CommentCount);
+        newsRetVo.setCreateTime(createTime);
 
         return newsRetVo;
     }

@@ -5,6 +5,7 @@ import springfox.documentation.annotations.ApiIgnore;
 import weibo.weibo.annotation.Audit;
 import weibo.weibo.annotation.LoginUser;
 import weibo.weibo.model.*;
+import weibo.weibo.model.RetObject.CommentRet;
 import weibo.weibo.model.RetObject.NewsRet;
 import weibo.weibo.service.*;
 import weibo.weibo.util.Common;
@@ -61,18 +62,16 @@ public class NewsController {
             for(News news:newsList) {
                 int likeCount = likeService.getLikeStatus(userId.intValue(), news.getId(), EntityType.ENTITY_NEWS);
 
-                List<ViewObject> commentVOs = new ArrayList<>();
-                List<Comment> comments = commentService.getCommentByEntity(news.getId(), EntityType.ENTITY_NEWS);
+                List<CommentRet> commentVOs = new ArrayList<>();
+                List<Comment> comments = commentService.getCommentByEntity(news.getId(), EntityType.ENTITY_COMMENT);
 
                 for (Comment comment : comments) {
-                    ViewObject vo = new ViewObject();
-                    vo.set("comment", comment);
-                    vo.set("user", userService.getUser(comment.getUserId()));
+                    CommentRet vo = new CommentRet(comment,userService.getUser(comment.getUserId()));
                     commentVOs.add(vo);
                 }
 
                 User user=userService.getUser(news.getUserId());
-                NewsRet newsRet=new NewsRet(likeCount,commentVOs,news,user);
+                NewsRet newsRet=new NewsRet(likeCount,commentVOs,news,user,comments.size());
                 newsRetList.add(newsRet);
             }
         }
@@ -91,7 +90,7 @@ public class NewsController {
     public Object newsDetail(@PathVariable("newsId") int newsId,@LoginUser @ApiIgnore @RequestParam(required = false) Long userId) {
         News news = newsService.getNews(newsId);
         int likeCount=0;
-        List<ViewObject> commentVOs = new ArrayList<>();
+        List<CommentRet> commentVOs = new ArrayList<>();
         if (news != null) {
 //            int localUserId = userHolder.getUser() != null ? userHolder.getUser().getId() : 0;
 //            if (localUserId != 0) {
@@ -102,17 +101,15 @@ public class NewsController {
 //                model.addAttribute("like", 0);
 //            }
             //评论
-            List<Comment> comments = commentService.getCommentByEntity(news.getId(), EntityType.ENTITY_NEWS);
+            List<Comment> comments = commentService.getCommentByEntity(news.getId(), EntityType.ENTITY_COMMENT);
 
             for (Comment comment : comments) {
-                ViewObject vo = new ViewObject();
-                vo.set("comment", comment);
-                vo.set("user", userService.getUser(comment.getUserId()));
+                CommentRet vo = new CommentRet(comment,userService.getUser(comment.getUserId()));
                 commentVOs.add(vo);
             }
         }
         User user=userService.getUser(news.getUserId());
-        NewsRet newsRet=new NewsRet(likeCount,commentVOs,news,user);
+        NewsRet newsRet=new NewsRet(likeCount,commentVOs,news,user,commentVOs.size());
         ReturnObject returnObject=new ReturnObject(newsRet);
         return Common.getRetObject(returnObject);
     }
@@ -154,11 +151,18 @@ public class NewsController {
         }
     }
 
-    @RequestMapping(path = {"/user/addComment/"},method = {RequestMethod.POST})
-    public String addComment(@RequestParam("newId") int newsId,@RequestParam("content") String content){
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header",dataType = "String",name = "authorization",value = "Token",required = true),
+            @ApiImplicitParam(paramType = "path",dataType = "int",name = "newsId",value = "资讯id",required = true),
+            @ApiImplicitParam(paramType = "query", dataType = "String", name = "content", value = "评论内容", required = false)
+    })
+    @Audit
+    @ResponseBody
+    @PostMapping("user/addComment/{newsId}")
+    public Object addComment(@LoginUser @ApiIgnore @RequestParam(required = false) Long userId,@PathVariable("newsId") int newsId,@RequestParam("content") String content){
         try{
             Comment comment=new Comment();
-            comment.setUserId(userHolder.getUser().getId());
+            comment.setUserId(userId.intValue());
             comment.setContent(content);
             comment.setEntityId(newsId);
             comment.setEntityType(EntityType.ENTITY_COMMENT);
@@ -173,7 +177,7 @@ public class NewsController {
         }catch(Exception e){
             logger.error("提交评论错误",e.getMessage());
         }
-        return "redirect:/news/"+String.valueOf(newsId);
+        return WeiboUtil.getJSONString(0,"发布评论成功");
     }
 
     @RequestMapping("/uploadImage/")

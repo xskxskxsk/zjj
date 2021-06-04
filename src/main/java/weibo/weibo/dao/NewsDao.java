@@ -14,7 +14,7 @@ public interface NewsDao {
     String TABLE_NAME = "news";
     String TABLE_NAME1 = "image";
     String INSERT_FIELDS = " title,link,image,create_time,user_id,comment_count,like_count";
-    String INSERT_FIELDS1 = " user_id,MD5,name";
+    String INSERT_FIELDS1 = " user_id,md5,name";
     String SELECT_FIELDS = "id, " + INSERT_FIELDS;
 
     @Insert({"insert into ",TABLE_NAME,"(",INSERT_FIELDS,") " +
@@ -35,7 +35,7 @@ public interface NewsDao {
     int updateLikeCount(@Param("id") int id,@Param("likeCount") int likeCount);
 
     @Insert({"insert into ",TABLE_NAME1,"(",INSERT_FIELDS1,") " +
-            "values(#{user_id},#{MD5},#{name})"})
+            "values(#{userId},#{md5},#{name})"})
     @Options(useGeneratedKeys = true,keyProperty = "id")
     String insertImage(Image image);
 

@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 /**
  * @author snow create 2021/04/17 14:51
  */
-@Data
 public class Image {
     private int id;
     private int userId;
