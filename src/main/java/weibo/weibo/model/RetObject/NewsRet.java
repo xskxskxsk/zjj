@@ -27,7 +27,7 @@ public class NewsRet implements VoObject {
 
     private String createTime;
 
-    public NewsRet(int likeCount, List<CommentRet> commentList, News news, User user){
+    public NewsRet(int likeCount, List<CommentRet> commentList, News news, User user,int commentCount){
         this.id=news.getId();
         this.likeCount=likeCount;
         this.commentList=commentList;
@@ -36,7 +36,7 @@ public class NewsRet implements VoObject {
         this.user=user;
         SimpleDateFormat sdf =new SimpleDateFormat("yyyy-MM-dd HH:mm:ss" );
         this.createTime=sdf.format(news.getCreatedTime());
-        this.CommentCount=news.getCommentCount();
+        this.CommentCount=commentCount;
     }
 
     @Override

@@ -1,5 +1,7 @@
 package weibo.weibo.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import weibo.weibo.dao.NewsDao;
 import weibo.weibo.model.*;
@@ -26,6 +28,9 @@ public class CommentService {
     private CommentDao commentDao;
     @Autowired
     private NewsDao newsDao;
+
+    private static final Logger logger = LoggerFactory.getLogger(LikeService.class);
+
      public void transCommentCountFromRedis(){
          Set<String> keys=redisTemplate.keys("*");
          for(String str:keys){
@@ -47,7 +52,16 @@ public class CommentService {
     }
 
     public int getCommentCount(int entityId,int entityType){
-        return commentDao.getCommentCount(entityId,entityType);
+        int count=0;
+        boolean hasKey = redisTemplate.hasKey(" COMMENT :"+entityId);
+        if(hasKey) {
+            count = Integer.parseInt(jedisUtil.get(" COMMENT :" + entityId));
+        }
+        return count;
+    }
+
+    public int getCommentCounts(int entityId,int entityType){
+         return commentDao.getCommentCount(entityId,entityType);
     }
 
 }

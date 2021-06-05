@@ -1,6 +1,7 @@
 package weibo.weibo.controller;
 
 import io.swagger.annotations.*;
+import net.sf.jsqlparser.expression.StringValue;
 import springfox.documentation.annotations.ApiIgnore;
 import weibo.weibo.annotation.Audit;
 import weibo.weibo.annotation.LoginUser;
@@ -60,6 +61,7 @@ public class NewsController {
         if (newsList != null) {
             for(News news:newsList) {
                 int likeCount = likeService.getLikeStatus(userId.intValue(), news.getId(), EntityType.ENTITY_NEWS);
+                int commentCount = commentService.getCommentCount(news.getId(), EntityType.ENTITY_NEWS);
 
                 List<CommentRet> commentVOs = new ArrayList<>();
                 List<Comment> comments = commentService.getCommentByEntity(news.getId(), EntityType.ENTITY_COMMENT);
@@ -70,7 +72,7 @@ public class NewsController {
                 }
 
                 User user=userService.getUser(news.getUserId());
-                NewsRet newsRet=new NewsRet(likeCount,commentVOs,news,user);
+                NewsRet newsRet=new NewsRet(likeCount,commentVOs,news,user,commentCount);
                 newsRetList.add(newsRet);
             }
         }
@@ -92,6 +94,7 @@ public class NewsController {
         if (newsList != null) {
             for(News news:newsList) {
                 int likeCount = likeService.getLikeStatus(userId.intValue(), news.getId(), EntityType.ENTITY_NEWS);
+                int commentCount = commentService.getCommentCount(news.getId(), EntityType.ENTITY_NEWS);
 
                 List<CommentRet> commentVOs = new ArrayList<>();
                 List<Comment> comments = commentService.getCommentByEntity(news.getId(), EntityType.ENTITY_COMMENT);
@@ -102,7 +105,7 @@ public class NewsController {
                 }
 
                 User user=userService.getUser(news.getUserId());
-                NewsRet newsRet=new NewsRet(likeCount,commentVOs,news,user);
+                NewsRet newsRet=new NewsRet(likeCount,commentVOs,news,user,commentCount);
                 newsRetList.add(newsRet);
             }
         }
@@ -121,12 +124,15 @@ public class NewsController {
     public Object newsDetail(@PathVariable("newsId") int newsId,@LoginUser @ApiIgnore @RequestParam(required = false) Long userId) {
         News news = newsService.getNews(newsId);
         int likeCount=0;
+        int commentCount=0;
         List<CommentRet> commentVOs = new ArrayList<>();
         if (news != null) {
 //            int localUserId = userHolder.getUser() != null ? userHolder.getUser().getId() : 0;
 //            if (localUserId != 0) {
             //用户已登陆
             likeCount=likeService.getLikeStatus(userId.intValue(), news.getId(), EntityType.ENTITY_NEWS);
+            commentCount = commentService.getCommentCount(news.getId(), EntityType.ENTITY_NEWS);
+            logger.error(String.valueOf(commentCount));
 //            } else {
 //                //用户未登陆
 //                model.addAttribute("like", 0);
@@ -140,7 +146,7 @@ public class NewsController {
             }
         }
         User user=userService.getUser(news.getUserId());
-        NewsRet newsRet=new NewsRet(likeCount,commentVOs,news,user);
+        NewsRet newsRet=new NewsRet(likeCount,commentVOs,news,user,commentCount);
         ReturnObject returnObject=new ReturnObject(newsRet);
         return Common.getRetObject(returnObject);
     }
@@ -203,7 +209,7 @@ public class NewsController {
 
             //todo
             //更新评论数量，以后用异步实现
-            int count=commentService.getCommentCount(comment.getEntityId(),comment.getEntityType());
+            int count=commentService.getCommentCounts(comment.getEntityId(),comment.getEntityType());
             String likeKey = RedisKeyUtil.getCommentKey(newsId);
             jedisUtil.set(likeKey, String.valueOf(count));
             //newsService.updateCommentCount(comment.getEntityId(),count);
