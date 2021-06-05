@@ -8,10 +8,7 @@ import weibo.weibo.model.*;
 import weibo.weibo.model.RetObject.CommentRet;
 import weibo.weibo.model.RetObject.NewsRet;
 import weibo.weibo.service.*;
-import weibo.weibo.util.Common;
-import weibo.weibo.util.ResponseUtil;
-import weibo.weibo.util.ReturnObject;
-import weibo.weibo.util.WeiboUtil;
+import weibo.weibo.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +45,8 @@ public class NewsController {
     @Autowired
     AliService aliService;
 
-
+    @Autowired
+    private JedisUtil jedisUtil;
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "header",dataType = "String",name = "authorization",value = "Token",required = true)
     })
@@ -205,7 +203,9 @@ public class NewsController {
             //todo
             //更新评论数量，以后用异步实现
             int count=commentService.getCommentCount(comment.getEntityId(),comment.getEntityType());
-            newsService.updateCommentCount(comment.getEntityId(),count);
+            String likeKey = RedisKeyUtil.getCommentKey(newsId);
+            jedisUtil.set(likeKey, String.valueOf(count));
+            //newsService.updateCommentCount(comment.getEntityId(),count);
         }catch(Exception e){
             logger.error("提交评论错误",e.getMessage());
         }

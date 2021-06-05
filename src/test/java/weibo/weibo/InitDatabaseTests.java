@@ -82,10 +82,10 @@ public class InitDatabaseTests {
 //        Assert.assertEquals("newpassword", userDao.selectById(58).getPassword());
 //        userDao.deleteById(57);
 //        Assert.assertNull(userDao.selectById(57));
-
-        Assert.assertEquals(1, loginTicketDao.selectByTicket("TICKET1").getUserId());
-        Assert.assertEquals(2, loginTicketDao.selectByTicket("TICKET1").getStatus());
-
-        Assert.assertNotNull(commentDao.selectByEntity(45, EntityType.ENTITY_NEWS).get(0));
+//
+//        Assert.assertEquals(1, loginTicketDao.selectByTicket("TICKET1").getUserId());
+//        Assert.assertEquals(2, loginTicketDao.selectByTicket("TICKET1").getStatus());
+//
+//        Assert.assertNotNull(commentDao.selectByEntity(45, EntityType.ENTITY_NEWS).get(0));
     }
 }

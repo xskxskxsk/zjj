@@ -35,6 +35,7 @@ public class AliService {
      * @throws IOException
      */
     public String saveImage(MultipartFile multipartFile) throws IOException {
+        logger.error(multipartFile.getOriginalFilename());
         int dotPos = multipartFile.getOriginalFilename().lastIndexOf(".");
         if (dotPos < 0) {
             return null;

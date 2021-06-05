@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import weibo.weibo.controller.LoginController;
 import weibo.weibo.dao.NewsDao;
+import weibo.weibo.service.CommentService;
 import weibo.weibo.service.LikeService;
 
 import java.text.SimpleDateFormat;
@@ -26,15 +27,19 @@ public class LikeTask extends QuartzJobBean {
     @Autowired
     LikeService likeService;
 
+    @Autowired
+    CommentService commentService;
+
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext) throws JobExecutionException {
 
-        logger.info("LikeTask-------- {}", sdf.format(new Date()));
+        logger.info("Task-------- {}", sdf.format(new Date()));
 
         //将 Redis 里的点赞信息同步到数据库里
         //likedService.transLikedFromRedis2DB();
+        commentService.transCommentCountFromRedis();
         likeService.transLikedCountFromRedis();
     }
 }
